@@ -1,9 +1,6 @@
 "use client";
 
-/* Core */
 import { useState } from "react";
-
-/* Instruments */
 import {
   counterSlice,
   useSelector,
