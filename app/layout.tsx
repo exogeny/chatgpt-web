@@ -1,9 +1,8 @@
 import { type Metadata } from "next";
 
-import { Providers } from "@/lib/providers";
-
 import styles from "./styles/layout.module.css";
 import "./styles/globals.scss";
+import { Providers } from '@/lib/providers';
 
 export const metadata: Metadata = {
   title: "ChatGPT Web Proxy",
