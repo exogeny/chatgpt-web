@@ -23,14 +23,20 @@
     "next": "14.0.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-redux": "8.0.1"
+    "react-redux": "8.0.1",
+    "iron-session": "6.3.1",
+    "cookie": "0.6.0",
+    "uuid": "8.3.2"
   },
   "dependencies": {
+    "@svgr/webpack": "8.1.0",
     "@types/node": "20.3.1",
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.0",
+    "@types/react-router-dom": "5.3.3",
     "@types/redux-logger": "3.0.12",
     "redux-logger": "3.0.6",
+    "sass": "1.69.7",
     "typescript": "5.3.3",
     "webpack": "5.89.0"
   }

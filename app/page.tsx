@@ -1,9 +1,11 @@
-import { Counter } from "./components/Counter/Counter";
+import { Home } from "./components/Home";
 
-export default function IndexPage() {
-  return <Counter />;
+const Index = () => {
+  return (
+    <>
+      <Home />
+    </>
+  );
 }
 
-export const metadata = {
-  title: "ChatGPT Web Proxy",
-};
+export default Index;
