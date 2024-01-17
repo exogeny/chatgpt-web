@@ -1,10 +1,5 @@
 import Slicer, { TagTypes, HttpQueryType } from "./slicer";
 import { IAuthorizationSession } from "@/lib/model/authentication";
-import {
-  getAuthenticationSessionUrl,
-  postAuthenticationSessionUrl,
-  deleteAuthenticationSessionUrl,
-} from "@/lib/configs/urls";
 
 export interface SessionState extends Omit<IAuthorizationSession, 'password'> {
   /**
@@ -17,7 +12,7 @@ const authenticationSession = Slicer.injectEndpoints({
   endpoints: (build) => ({
     getAuthenticationSession: build.query<IAuthorizationSession, void>({
       query: () => ({
-        url: getAuthenticationSessionUrl,
+        url: "auth",
         method: HttpQueryType.GET,
       }),
       transformResponse: (response: IAuthorizationSession) => {
@@ -30,7 +25,7 @@ const authenticationSession = Slicer.injectEndpoints({
     }),
     postAuthenticationSession: build.mutation<Pick<SessionState, "message">, IAuthorizationSession>({
       query: ({ password }) => ({
-        url: postAuthenticationSessionUrl,
+        url: "auth",
         method: HttpQueryType.POST,
         body: { password },
       }),
@@ -41,7 +36,7 @@ const authenticationSession = Slicer.injectEndpoints({
     }),
     deleteAuthenticationSession: build.mutation<Pick<SessionState, "message">, void>({
       query: () => ({
-        url: deleteAuthenticationSessionUrl,
+        url: "auth",
         method: HttpQueryType.DELETE,
       }),
       invalidatesTags: [TagTypes.AUTH],

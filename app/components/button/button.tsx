@@ -2,7 +2,7 @@ import * as React from "react";
 
 import styles from "./button.module.scss";
 
-export type ButtonType = "primary" | "danger" | null;
+export type ButtonType = "primary" | "danger" | "submit" | null;
 
 export function Button(props: {
   onClick?: () => void;
@@ -46,5 +46,5 @@ export function Button(props: {
         <div className={styles["button-text"]}>{props.text}</div>
       )}
     </button>
-  )
-};
+  );
+}
