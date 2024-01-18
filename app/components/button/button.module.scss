@@ -19,6 +19,12 @@
     opacity: 0.5;
   }
 
+  &.default {
+    path {
+      fill: white !important;
+    }
+  }
+
   &.primary {
     background-color: var(--primary);
     color: white;

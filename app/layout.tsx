@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 
 import "./styles/globals.scss";
+import "./styles/markdown.scss";
+import "./styles/highlight.scss";
+
 import { Providers } from '@/lib/providers';
 import { getClientConfig } from "@/lib/configs/client";
 

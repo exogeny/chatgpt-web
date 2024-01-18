@@ -2,7 +2,7 @@ import * as React from "react";
 
 import styles from "./button.module.scss";
 
-export type ButtonType = "primary" | "danger" | "submit" | null;
+export type ButtonType = "default" | "primary" | "danger" | "submit" | null;
 
 export function Button(props: {
   onClick?: () => void;
@@ -21,8 +21,8 @@ export function Button(props: {
     <button
       className={
         styles["button"] +
-        ` ${props.bordered && styles.border} ${props.shadow && styles.shadow} 
-          ${props.className ?? ""} clickable ${styles[props.type ?? ""]}`
+        ` ${props.bordered && styles.border} ${props.shadow ? styles.shadow : ""} 
+          ${props.className ?? ""} clickable ${styles[props.type ?? "default"]}`
       }
       onClick={props.onClick}
       title={props.title}

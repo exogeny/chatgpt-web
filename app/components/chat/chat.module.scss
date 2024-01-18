@@ -14,3 +14,29 @@
   position: relative;
   overscroll-behavior: none;
 }
+
+.chat-box-main-title {
+  padding: 10px 0 5px;
+}
+
+.chat-box-main-title-editor {
+  input {
+    height: 23.2px!important;
+    max-height: 23.2px;
+    min-height: 23.2px;
+    border-radius: unset;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: left;
+    padding: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border: 0px;
+    outline: auto;
+  }
+}
+
+.model-selector-button {
+  min-width: 180px;
+  justify-content: left;
+}

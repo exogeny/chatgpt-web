@@ -48,9 +48,9 @@ export function ChatItem(props: {
         >
           <div className={styles["chat-item-title"]}>{props.title}</div>
           <div className={styles["chat-item-info"]}>
-            {props.count} messages
+            <div className={styles["chat-item-count"]}>{props.count} messages</div>
+            <div className={styles["chat-item-date"]}>{props.time}</div>
           </div>
-          <div className={styles["chat-item-date"]}>{props.time}</div>
 
           <div
             className={styles["chat-item-delete"]}
@@ -103,7 +103,7 @@ export function ChatList() {
                 index={index}
                 selected={index === selectedIndex}
                 onClick={() => {
-                  navigate("/chat/");
+                  navigate("/");
                   selectSession(index);
                 }}
                 onDelete={async () => {

@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { useChatStore } from "@/lib/redux/chat";
 
 import styles from "./action.module.scss";
+import ScollDownIcon from "@/public/icons/down.svg";
 import PromptIcon from "@/public/icons/prompt.svg";
 
 function ChatAction(props: {
-  text: string;
+  text?: string;
   icon: JSX.Element;
+  disabled?: boolean;
   onClick: () => void;
 }) {
   const iconRef = useRef<HTMLDivElement>(null);
@@ -32,7 +34,8 @@ function ChatAction(props: {
 
   return (
     <div
-      className={`${styles["chat-editor-action"]} clickable`}
+      className={`${styles["chat-editor-action"]}
+        ${props.disabled ? styles["chat-editor-action-disabled"] : ""} clickable`}
       onClick={() => {
         props.onClick();
         setTimeout(updateWidth, 1);
@@ -47,7 +50,9 @@ function ChatAction(props: {
       }
     >
       <div ref={iconRef} className={styles["icon"]}>{props.icon}</div>
-      <div className={styles["text"]} ref={textRef}>{props.text}</div>
+      { props.text && (
+        <div className={styles["text"]} ref={textRef}>{props.text}</div>
+      )}
     </div>
   );
 }
@@ -63,6 +68,11 @@ export function ChatActionList(props: {
 
   return (
     <div className={styles["chat-editor-actions"]}>
+      <ChatAction
+        onClick={props.scrollToBottom}
+        icon={<ScollDownIcon />}
+        disabled={props.hitBottom}
+      />
       <ChatAction
         onClick={props.showPromptHints}
         text="Prompts"

@@ -17,35 +17,13 @@ function shouldSubmit(e: React.KeyboardEvent<HTMLTextAreaElement>) {
   return e.key === "Enter" && !e.shiftKey;
 }
 
-function useScrollToBottom() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [autoScroll, setAutoScroll] = useState(true);
-  const scrollDomToBottom = () => {
-    const dom = scrollRef.current;
-    if (dom) {
-      requestAnimationFrame(() => {
-        setAutoScroll(true);
-        dom.scrollTo(0, dom.scrollHeight);
-      });
-    }
-  }
-
-  useEffect(() => {
-    if (autoScroll) {
-      scrollDomToBottom();
-    }
-  });
-
-  return { scrollRef, autoScroll, setAutoScroll, scrollDomToBottom };
-}
-
 function getOrCreateMeasureDom(id: string, init?: (dom: HTMLElement) => void) {
   let dom = document.getElementById(id);
   if (!dom) {
     dom = document.createElement("span");
     dom.style.position = "absolute";
     dom.style.wordBreak = "break-word";
-    dom.style.fontSize = "14px";
+    dom.style.fontSize = "12px";
     dom.style.transform = "translateY(-200vh)";
     dom.style.pointerEvents = "none";
     dom.style.opacity = "0";
@@ -85,7 +63,11 @@ function autoGrowTextArea(dom: HTMLTextAreaElement) {
   return rows;
 }
 
-export function ChatEditor(props: { isMobileScreen?: boolean }) {
+export function ChatEditor(props: {
+  hitBottom: boolean;
+  scrollToBottom: () => void;
+  isMobileScreen?: boolean;
+}) {
   const navigate = useNavigate();
   const chatStore = useChatStore();
   const promptStore = usePromptStore();
@@ -95,9 +77,7 @@ export function ChatEditor(props: { isMobileScreen?: boolean }) {
   const [isLoading, setIsLoading] = useState(false);
   const [inputRows, setInputRows] = useState(2);
   const [promptHints, setPromptHints] = useState<RenderPrompt[]>([]);
-  const [hitBottom, setHitBottom] = useState(true);
   const [showPromptModal, setShowPromptModal] = useState(false);
-  const { scrollRef, setAutoScroll, scrollDomToBottom } = useScrollToBottom();
   const autoFocus = props.isMobileScreen ?? false;
 
   const measure = useDebouncedCallback(
@@ -163,10 +143,6 @@ export function ChatEditor(props: { isMobileScreen?: boolean }) {
     }
   };
 
-  const scrollToBottom = () => {
-
-  };
-
   const submitMessage = (userInput: string) => {
     if (userInput.trim().length > 0) {
       const matchCommand = chatCommands.match(userInput);
@@ -183,7 +159,7 @@ export function ChatEditor(props: { isMobileScreen?: boolean }) {
       setUserInput("");
       setPromptHints([]);
       inputRef.current?.focus();
-      setAutoScroll(true);
+      // setAutoScroll(true);
     }
   };
 
@@ -193,8 +169,8 @@ export function ChatEditor(props: { isMobileScreen?: boolean }) {
 
       <ChatActionList
         showPromptModal={() => setShowPromptModal(true)}
-        scrollToBottom={scrollToBottom}
-        hitBottom={hitBottom}
+        scrollToBottom={props.scrollToBottom}
+        hitBottom={props.hitBottom}
         showPromptHints={() => {
           if (promptHints.length > 0) {
             setPromptHints([]);
@@ -214,11 +190,11 @@ export function ChatEditor(props: { isMobileScreen?: boolean }) {
           onInput={(e) => onInput(e.currentTarget.value)}
           value={userInput}
           onKeyDown={onInputKeyDown}
-          onFocus={scrollToBottom}
-          onClick={scrollToBottom}
+          onFocus={props.scrollToBottom}
+          onClick={props.scrollToBottom}
           rows={inputRows}
           autoFocus={autoFocus}
-          style={{fontSize: "1.5rem"}}
+          style={{fontSize: "1.0rem"}}
         />
         <Button
           icon={<SendWhiteIcon />}
