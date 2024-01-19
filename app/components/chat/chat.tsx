@@ -53,7 +53,7 @@ function ChatBox() {
 
   const handleModelSelectorOutsideClick = (e: MouseEvent) => {
     if (modelSelectorRef.current &&
-      !modelSelectorRef.current.contains(e.target) &&
+      !modelSelectorRef.current.contains(e.target as Node) &&
       showModelSelector) {
       setShowModelSelector(false);
     }

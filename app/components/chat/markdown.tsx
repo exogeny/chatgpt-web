@@ -154,7 +154,7 @@ export const MarkdownContent = React.memo(MarkdownContentComponent);
 export function Markdown(
   props: {
     content: string;
-    laoding?: boolean;
+    loading?: boolean;
     fontSize?: number;
     parentRef?: RefObject<HTMLDivElement>;
     defaultShow?: boolean;
@@ -175,7 +175,7 @@ export function Markdown(
       onDoubleClickCapture={props.onDoubleClickCapture}
       dir="auto"
     >
-      {props.laoding ? (
+      {props.loading ? (
         <LoadingIcon />
       ) : (
         <MarkdownContent content={props.content} />

@@ -1,6 +1,7 @@
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
+      BASE_URL?: string;
       CODE?: string;
       OPENAI_API_KEY?: string;
     }
@@ -37,8 +38,10 @@ export const getServerSideConfig = () => {
   }
 
   const apiKeyEnvVar = process.env.OPENAI_API_KEY ?? "";
+  const baseURL = process.env.BASE_URL ?? "http://localhost:3000";
 
   return {
+    baseURL: baseURL,
     codes: ACCESS_CODES,
     openaiAPIKey: apiKeyEnvVar,
   };

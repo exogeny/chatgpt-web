@@ -5,7 +5,7 @@ export function Selector<T>(props: {
   id?: string;
   items: Array<{
     title: string;
-    subTitle: string;
+    subTitle?: string;
     value: T;
   }>;
   defaultSelectedValue?: T;

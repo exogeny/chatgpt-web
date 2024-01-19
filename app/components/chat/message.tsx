@@ -65,7 +65,7 @@ function ChatMessageItem(props: {
                 message.content.length === 0 &&
                 !isUser
               }
-              onContextMenu={(e) => onRightClick(e, message)}
+              // onContextMenu={(e) => onRightClick(e, message)}
             />
           </div>
           <div className={styles["chat-message-action-date"]}>
@@ -122,7 +122,8 @@ export function ChatMessageList(props: {
           <ChatMessageItem
             message={message}
             session={props.session}
-            key={index}
+            index={index}
+            isContext={false}
           />
         );
       })}
