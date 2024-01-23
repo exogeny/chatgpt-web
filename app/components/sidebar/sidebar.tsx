@@ -7,7 +7,7 @@ import { isIOS, useMobileScreen } from "@/lib/mobile";
 
 import { Button } from "../button/button";
 import { useChatStore } from "@/lib/redux/chat";
-import { version } from "@/package.json";
+import { getClientConfig } from "@/lib/configs/client";
 
 const ChatList = dynamic(async () => (await import("../chat/list")).ChatList, {
   loading: () => null,
@@ -21,6 +21,7 @@ export function SideBar(props: { className?: string }) {
     [isMobileScreen]);
 
   const chatStore = useChatStore();
+  const version = getClientConfig()?.version ?? "unknown";
 
   return (
     <div
