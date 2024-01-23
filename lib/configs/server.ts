@@ -4,6 +4,7 @@ declare global {
       BASE_URL?: string;
       CODE?: string;
       OPENAI_API_KEY?: string;
+      GITHUB_WEBHOOK_SECRET?: string;
     }
   }
 }
@@ -39,10 +40,12 @@ export const getServerSideConfig = () => {
 
   const apiKeyEnvVar = process.env.OPENAI_API_KEY ?? "";
   const baseURL = process.env.BASE_URL ?? "http://localhost:3000";
+  const githubWebHookSecret = process.env.GITHUB_WEBHOOK_SECRET ?? "";
 
   return {
     baseURL: baseURL,
     codes: ACCESS_CODES,
     openaiAPIKey: apiKeyEnvVar,
+    githubWebHookSecret: githubWebHookSecret.trim(),
   };
 };

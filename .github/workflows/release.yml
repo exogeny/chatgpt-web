@@ -39,6 +39,7 @@ jobs:
           |
           mkdir -p dist
           cp -r .next/standalone/* dist
+          cp -r .next/standalone/.next dist/standalone
           cp -r .next/static dist
           cp -r public dist
           (cd dist && zip -r ../ChatGPT-Release.zip * >> /dev/null)
