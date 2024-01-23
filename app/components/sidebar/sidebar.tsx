@@ -1,5 +1,5 @@
-import { useEffect, useRef, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import dynamic from "next/dynamic";
 
 import styles from "./sidebar.module.scss";
@@ -7,6 +7,7 @@ import { isIOS, useMobileScreen } from "@/lib/mobile";
 
 import { Button } from "../button/button";
 import { useChatStore } from "@/lib/redux/chat";
+import { version } from "@/package.json";
 
 const ChatList = dynamic(async () => (await import("../chat/list")).ChatList, {
   loading: () => null,
@@ -30,6 +31,7 @@ export function SideBar(props: { className?: string }) {
       }}>
       <div className={styles["sidebar-header"]}>
         <div className={styles["sidebar-title"]}>ChatGPT Web Proxy</div>
+        <div className={styles["sidebar-subtitle"]}>Version: { version }</div>
       </div>
 
       <div className={styles["sidebar-header-bar"]}>
