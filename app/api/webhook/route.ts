@@ -1,7 +1,8 @@
 import { exec } from 'child_process';
-import { access, writeFile, readFile, mkdir } from 'fs/promises';
+import { access, writeFile, mkdir } from 'fs/promises';
 import { NextRequest, NextResponse } from "next/server";
 
+import { getClientConfig } from '@/lib/configs/client';
 import { verifyGithubWebHookSecret } from "@/lib/authorization/auth-utils";
 
 function resolveReleaseEvent(data: any) {
@@ -21,9 +22,7 @@ function resolveReleaseEvent(data: any) {
       }
       throw error;
     }).then(() => {
-      return readFile("./public/site.webmanifest");
-    }).then((buffer) => {
-      const version = JSON.parse(buffer.toString()).version ?? "";
+      const version = getClientConfig()?.version;
       console.log("[Webhook] Current version: ", version, tagName);
       return (version !== tagName);
     }).then((needUpdated) => {
