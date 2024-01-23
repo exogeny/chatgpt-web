@@ -10,11 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'yarn'
+
       - name: create release
         id: create_release
         uses: actions/create-release@v1
@@ -25,29 +28,27 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
-      - uses: actions/checkout@v3
-      - name: setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+
       - name: install dependencies
         run: yarn install --frozen-lockfile
+
       - name: build
         run: yarn build
       - name: package
         run:
           |
-          mkdir dist
-          cp -r .next/standalone dist
+          mkdir -p dist
+          cp -r .next/standalone/* dist
           cp -r .next/static dist
           cp -r public dist
-          zip -r ${{ github.ref }}.zip dist
+          (cd dist && zip -r ../ChatGPT-Release.zip * >> /dev/null)
+
       - name: upload release asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./
-          asset_name: ${{ github.ref }}.zip
+          asset_path: ./ChatGPT-Release.zip
+          asset_name: ChatGPT-Release.zip
           asset_content_type: application/zip
