@@ -42,7 +42,7 @@ jobs:
           cp -r .next/standalone/.next dist
           cp -r .next/static dist
           cp -r public dist
-          (cd dist && zip -r ../ChatGPT-Release.zip * >> /dev/null)
+          (cd dist && zip -r ../ChatGPT-Release.zip ./ >> /dev/null)
 
       - name: upload release asset
         uses: actions/upload-release-asset@v1
