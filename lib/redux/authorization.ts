@@ -1,4 +1,4 @@
-import Slicer, { TagTypes, HttpQueryType } from "./slicer";
+import { AuthorizeSlicer, AuthorizeTagTypes, HttpQueryType } from "./slicer";
 import { IAuthorizationSession } from "@/lib/model/authentication";
 
 export interface SessionState extends Omit<IAuthorizationSession, 'password'> {
@@ -8,7 +8,7 @@ export interface SessionState extends Omit<IAuthorizationSession, 'password'> {
   message: string;
 }
 
-const authenticationSession = Slicer.injectEndpoints({
+const authenticationSession = AuthorizeSlicer.injectEndpoints({
   endpoints: (build) => ({
     getAuthenticationSession: build.query<IAuthorizationSession, void>({
       query: () => ({
@@ -21,7 +21,7 @@ const authenticationSession = Slicer.injectEndpoints({
           password: '********',
         };
       },
-      providesTags: () => [{ type: TagTypes.AUTH }],
+      providesTags: () => [{ type: AuthorizeTagTypes.AUTH }],
     }),
     postAuthenticationSession: build.mutation<Pick<SessionState, "message">, IAuthorizationSession>({
       query: ({ password }) => ({
@@ -29,7 +29,7 @@ const authenticationSession = Slicer.injectEndpoints({
         method: HttpQueryType.POST,
         body: { password },
       }),
-      invalidatesTags: [{ type: TagTypes.AUTH }],
+      invalidatesTags: [{ type: AuthorizeTagTypes.AUTH }],
       transformResponse: (response: { message: string }) => {
         return { message: response.message };
       },
@@ -39,7 +39,7 @@ const authenticationSession = Slicer.injectEndpoints({
         url: "auth",
         method: HttpQueryType.DELETE,
       }),
-      invalidatesTags: [TagTypes.AUTH],
+      invalidatesTags: [AuthorizeTagTypes.AUTH],
     }),
   }),
 });

@@ -61,7 +61,7 @@ function ChatMessageItem(props: {
             <Markdown
               content={message.content}
               loading={
-                (message.streaming) &&
+                message.streaming &&
                 message.content.length === 0 &&
                 !isUser
               }

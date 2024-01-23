@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDebouncedCallback } from "use-debounce";
 
 import styles from "./editor.module.scss";
+import StopIcon from "@/public/icons/stop.svg";
 import SendWhiteIcon from "@/public/icons/send-white.svg";
 import { Button } from "../button/button";
 import { PromptHintList, RenderPrompt } from "./prompt";
@@ -12,6 +13,7 @@ import { StoreKey } from "@/lib/configs/constant";
 import { useChatCommand } from "@/lib/command";
 import { useChatStore } from "@/lib/redux/chat";
 import { usePromptStore } from "@/lib/redux/prompt";
+import { ChatControllerPool } from "@/lib/client/controller";
 
 function shouldSubmit(e: React.KeyboardEvent<HTMLTextAreaElement>) {
   return e.key === "Enter" && !e.shiftKey;
@@ -74,6 +76,7 @@ export function ChatEditor(props: {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [userInput, setUserInput] = useState("");
+  const [messageId, setMessageId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [inputRows, setInputRows] = useState(2);
   const [promptHints, setPromptHints] = useState<RenderPrompt[]>([]);
@@ -130,6 +133,10 @@ export function ChatEditor(props: {
     }
   };
 
+  const onUserStop = () => {
+    ChatControllerPool.stop(chatStore.currentSession()?.id, messageId);
+  };
+
   const onInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "ArrowUp" && userInput.length <= 0 && !(e.metaKey || e.altKey || e.ctrlKey)) {
       setUserInput(localStorage.getItem(StoreKey.LastInput) ?? "");
@@ -154,7 +161,11 @@ export function ChatEditor(props: {
       }
 
       setIsLoading(true);
-      chatStore.onUserInput(userInput).then(() => setIsLoading(false));
+      chatStore.onUserInput(
+        userInput,
+        setMessageId,
+        (finished) => setIsLoading(!finished)
+      );
       localStorage.setItem(StoreKey.LastInput, userInput);
       setUserInput("");
       setPromptHints([]);
@@ -196,13 +207,26 @@ export function ChatEditor(props: {
           autoFocus={autoFocus}
           style={{fontSize: "1.0rem"}}
         />
-        <Button
-          icon={<SendWhiteIcon />}
-          text="Send"
-          className={styles["chat-editor-send"]}
-          type="primary"
-          onClick={() => submitMessage(userInput)}
-        />
+        {
+          isLoading ? (
+            <Button
+              icon={<StopIcon />}
+              text="Stop"
+              className={styles["chat-editor-send"]}
+              type="primary"
+              onClick={() => onUserStop() }
+            />
+          ) : (
+            <Button
+              icon={<SendWhiteIcon />}
+              text="Send"
+              disabled={inputRef?.current?.value.trim().length === 0}
+              className={styles["chat-editor-send"]}
+              type="primary"
+              onClick={() => submitMessage(userInput)}
+            />
+          )
+        }
       </div>
     </div>
   )

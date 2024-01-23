@@ -1,7 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export enum TagTypes {
+export enum AuthorizeTagTypes {
   AUTH = 'AUTH', // Authentication session
+}
+
+export enum ChatTagTypes {
+  CHAT = 'CHAT', // Chat session
 }
 
 /**
@@ -17,14 +21,22 @@ export enum HttpQueryType {
   PATCH = 'PATCH',
 }
 
-const Slicer = createApi({
+export const AuthorizeSlicer = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
-  tagTypes: Object.values(TagTypes),
+  tagTypes: Object.values(AuthorizeTagTypes),
   endpoints: () => ({}),
   refetchOnFocus: true,
   refetchOnReconnect: true,
   refetchOnMountOrArgChange: true,
 });
 
-export default Slicer;
+export const ChatSlicer = createApi({
+  reducerPath: 'api',
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  tagTypes: Object.values(AuthorizeTagTypes),
+  endpoints: () => ({}),
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
+  refetchOnMountOrArgChange: true,
+});

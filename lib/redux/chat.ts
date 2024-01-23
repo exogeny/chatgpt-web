@@ -3,9 +3,10 @@ import { nanoid } from "nanoid";
 import { createPersistStore } from "./store";
 import { ChatMessage, ChatSession } from "../model/chat";
 import { StoreKey } from "../configs/constant";
-import { ChatModelConfig, KnowledgeCutOffDate } from "../model/model";
+import { ChatModelConfig, ChatModelType, KnowledgeCutOffDate } from "../model/model";
 import { ClientAPI, ModelProvider } from "../client/api";
 import { prettyObject } from "../utils/format";
+import { ChatControllerPool } from "../client/controller";
 
 export const DefaultTopic = "New Topic";
 export const DefaultSystemTemplate = `
@@ -31,6 +32,10 @@ export function createEmptyModelConfig(): ChatModelConfig {
     enableInjectSystemPrompts: true,
     template: `{{input}}`,
   } as ChatModelConfig;
+}
+
+function countMessages(messages: ChatMessage[]) {
+  return messages.reduce((pre, cur) => pre + estimateTokenLength(cur.content), 0);
 }
 
 function estimateTokenLength(text: string): number {
@@ -230,7 +235,96 @@ export const useChatStore = createPersistStore(
       },
 
       summarizeSession() {
+        const session = get().currentSession();
+        const modelConfig = session.modelConfig;
 
+        var api: ClientAPI;
+        if (modelConfig.model === "gemini-pro") {
+          api = new ClientAPI(ModelProvider.GeminiPro);
+        } else {
+          api = new ClientAPI(ModelProvider.OpenAI);
+        }
+
+        const messages = session.messages;
+        const MIN_SUMMARIZE_LENGTH = 50;
+        if (session.topic === DefaultTopic &&
+          countMessages(messages) > MIN_SUMMARIZE_LENGTH
+        ) {
+          const topicMessages = messages.concat(
+            createMessage({
+              role: "user",
+              content: "lease generate a four to five word title summarizing " +
+                "our conversation without any lead-in, punctuation, " +
+                "quotation marks, periods, symbols, bold text, or additional " +
+                "text.Remove enclosing quotation marks.",
+            }),
+          );
+          api.chat({
+            messages: topicMessages,
+            config: {
+              model: "gpt-3.5-turbo",
+            },
+            onFinish(message) {
+              get().updateCurrentSession((session) => {
+                session.topic = message.length > 0 ? message.trim() : DefaultTopic;
+              });
+            }
+          });
+        }
+
+        const summarizeIndex = Math.max(
+          session.lastSummarizeIndex,
+          session.clearContextIndex ?? 0,
+        );
+        let toBeSummarizedMessages = messages
+          .filter((message) => !message.isError)
+          .slice(summarizeIndex);
+        const historyMessageCount = countMessages(toBeSummarizedMessages);
+        if (historyMessageCount > (modelConfig?.max_token ?? 4000)) {
+          const n = toBeSummarizedMessages.length;
+          toBeSummarizedMessages = toBeSummarizedMessages.slice(
+            Math.max(0, n - (modelConfig?.historyMessageCount ?? 0)),
+          );
+        }
+
+        toBeSummarizedMessages.unshift(get().getPromptWithMemory());
+        const lastSummarizeIndex = session.messages.length;
+        const compressMessageLengthThreshold = 
+          modelConfig?.compressMessageLengthThreshold ?? 1000;
+        console.log(
+          "[Chat History] ",
+          toBeSummarizedMessages,
+          historyMessageCount,
+          compressMessageLengthThreshold,
+        );
+        if (historyMessageCount > compressMessageLengthThreshold &&
+          modelConfig?.sendMemory
+        ) {
+          api.chat({
+            messages: toBeSummarizedMessages.concat(
+              createMessage({
+                role: "system",
+                content: "Summarize the discussion briefly in 200 words or " +
+                  "less to use as a prompt for future context.",
+                date: "",
+              }),
+            ),
+            config: { ...modelConfig, stream: true, model: "gpt-3.5-turbo" },
+            onUpdate(message) {
+              session.memoryPrompt = message;
+            },
+            onFinish(message) {
+              console.log("[Summarize] ", message);
+              get().updateCurrentSession((session) => {
+                session.lastSummarizeIndex = lastSummarizeIndex;
+                session.memoryPrompt = message;
+              });
+            },
+            onError(err) {
+              console.error("[Summarize] ", err)
+            },
+          });
+        }
       },
 
       updateCurrentSession(updater: (session: ChatSession) => void) {
@@ -240,7 +334,12 @@ export const useChatStore = createPersistStore(
         set(() => ({ sessions }));
       },
 
-      async onUserInput(content: string) {
+      async onUserInput(
+        content: string,
+        updateMessageId: (id: string) => void,
+        setIsFinished?: (finished: boolean) => void)
+      {
+        setIsFinished?.(false);
         const session = get().currentSession();
         const modelConfig = session.modelConfig;
         const userContent = fillTemplateWith(content, modelConfig);
@@ -255,6 +354,7 @@ export const useChatStore = createPersistStore(
           streaming: true,
           model: modelConfig.model,
         });
+        updateMessageId(botMessage.id);
 
         // recent messages
         const recentMessages = get().getMessagesWithMemory();
@@ -297,7 +397,8 @@ export const useChatStore = createPersistStore(
               botMessage.content = message;
               get().onCreateMessage(botMessage);
             }
-            console.log("[Chat] finish: ", message);
+            ChatControllerPool.remove(session.id, botMessage.id);
+            setIsFinished?.(true);
           },
           onError(error) {
             const isAborted = error.message.includes("aborted");
@@ -313,8 +414,15 @@ export const useChatStore = createPersistStore(
               session.messages = session.messages.concat();
             });
             console.error("[Chat] error: ", error);
+            setIsFinished?.(true);
           },
-          onController(controller) { },
+          onController(controller) {
+            ChatControllerPool.addController(
+              session.id,
+              botMessage.id ?? messageIndex,
+              controller
+            );
+          },
         });
       },
 
@@ -351,7 +459,7 @@ export const useChatStore = createPersistStore(
           ? [get().getPromptWithMemory()] : [];
         const longTermMemoryStartIndex = session.lastSummarizeIndex;
         const shortTermMemoryStartIndex = Math.max(
-          0, totalMessageCount - modelConfig.historyMessageCount);
+          0, totalMessageCount - (modelConfig?.historyMessageCount ?? 0));
 
         // concat send messages, including:
         // 0. system prompt: to get close to OpenAI Web ChatGPT
@@ -363,7 +471,7 @@ export const useChatStore = createPersistStore(
           ? Math.min(longTermMemoryStartIndex, shortTermMemoryStartIndex)
           : shortTermMemoryStartIndex;
         const contextStartIndex = Math.max(clearContextIndex, memoryStartIndex);
-        const maxTokenThreadshold = modelConfig.max_token;
+        const maxTokenThreadshold = modelConfig?.max_token ?? 4000;
         const reversedRecentMessages = [];
         for (
           let i = totalMessageCount - 1, tokenCount = 0;

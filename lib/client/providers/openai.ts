@@ -10,13 +10,14 @@ function processStream(
   path: string,
   payload: FetchEventSourceInit,
   options: ChatOptions,
+  controller: AbortController,
 ) {
   let responseText = "";
   let remainText = "";
   let finished = false;
 
   function animateResponseText() {
-    if (finished) {
+    if (finished || controller.signal.aborted) {
       responseText += remainText;
       console.log("[Response Animation] finished.");
       return;
@@ -40,6 +41,7 @@ function processStream(
       options.onFinish(responseText + remainText);
     }
   }
+  controller.signal.onabort = finish;
 
   fetchEventSource(path, {
     ...payload,
@@ -123,16 +125,23 @@ export class OpenAIProvider implements ClientProvider {
     console.log("[Request] openai payload: ", requestPayload);
 
     const shouldStream = !!options.config.stream;
+    const controller = new AbortController();
+    options.onController?.(controller);
 
     try {
       const chatPath = "/api/openai/chat";
       const chatPayload = {
         method: "POST",
         body: JSON.stringify(requestPayload),
+        signal: controller.signal,
       };
 
+      const requestTimeoutId = setTimeout(() => {
+        controller.abort();
+      }, 60000);
+
       if (shouldStream) {
-        processStream(chatPath, chatPayload, options);
+        processStream(chatPath, chatPayload, options, controller);
       } else {
         const res = await fetch(chatPath, chatPayload);
         const resJson = await res.json();

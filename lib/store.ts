@@ -1,16 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux";
 
-import Slicer from "./redux/slicer";
+import { AuthorizeSlicer } from "./redux/slicer";
 
 /**
  * Redux store. contains reducer for Redux Toolkit Query
  */
 const store = configureStore({
   reducer: {
-    [Slicer.reducerPath]: Slicer.reducer,
+    [AuthorizeSlicer.reducerPath]: AuthorizeSlicer.reducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(Slicer.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(AuthorizeSlicer.middleware),
   devTools: process.env.NODE_ENV !== "production",
 });
 

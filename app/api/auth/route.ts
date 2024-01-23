@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
   const response = new Response();
   const session = await getIronSession(request, response, sessionOptions);
   const { password } = session?.authorizationSession ?? "";
-  return NextResponse.json({ password }, response);
+  const message = verifyPassword(password) ? "success" : "incorrect password";
+  return NextResponse.json({ message }, response);
 }
 
 export async function POST(request: NextRequest) {

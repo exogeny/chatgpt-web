@@ -7,6 +7,7 @@ import { sessionOptions } from "./lib/authorization/auth-config";
 import { verifyPassword } from "./lib/authorization/auth-utils";
 
 export const middleware = async (request: NextRequest) => {
+  const url = request.nextUrl.pathname;
   const response = NextResponse.next();
   const { authorizationSession } = await getIronSession(request, response, sessionOptions);
   const { baseURL } = getServerSideConfig();

@@ -146,14 +146,14 @@ export type ChatModelType = (typeof ChatModels)[number]["name"];
 
 export interface ChatModelConfig {
   model: ChatModelType;
-  temperature: number;
-  top_p: number;
-  max_token: number;
-  presence_penalty: number;
-  frequency_penalty: number;
-  sendMemory: boolean;
-  historyMessageCount: number;
-  compressMessageLengthThreshold: number;
-  enableInjectSystemPrompts: boolean;
-  template: string;
+  temperature?: number;
+  top_p?: number;
+  max_token?: number;
+  presence_penalty?: number;
+  frequency_penalty?: number;
+  sendMemory?: boolean;
+  historyMessageCount?: number;
+  compressMessageLengthThreshold?: number;
+  enableInjectSystemPrompts?: boolean;
+  template?: string;
 };

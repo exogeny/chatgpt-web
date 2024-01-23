@@ -9,7 +9,7 @@ export enum ModelProvider {
 
 export interface ChatOptions {
   messages: RequestMessage[];
-  config: ChatModelConfig & { stream: boolean };
+  config: ChatModelConfig & { stream?: boolean };
 
   onUpdate?: (message: string, chunk: string) => void;
   onFinish: (message: string) => void;
