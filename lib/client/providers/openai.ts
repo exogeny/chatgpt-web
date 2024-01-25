@@ -5,12 +5,14 @@ import {
 } from "@fortaine/fetch-event-source";
 import { ChatOptions, ClientProvider } from "../api";
 import { prettyObject } from "@/lib/utils/format";
+import { OpenAIChatModel } from "@/lib/model/model";
 
 function processStream(
   path: string,
   payload: FetchEventSourceInit,
   options: ChatOptions,
   controller: AbortController,
+  requestTimeoutId?: ReturnType<typeof setTimeout>,
 ) {
   let responseText = "";
   let remainText = "";
@@ -19,7 +21,6 @@ function processStream(
   function animateResponseText() {
     if (finished || controller.signal.aborted) {
       responseText += remainText;
-      console.log("[Response Animation] finished.");
       return;
     }
 
@@ -46,15 +47,17 @@ function processStream(
   fetchEventSource(path, {
     ...payload,
     async onopen(res) {
+      clearTimeout(requestTimeoutId);
+
       const contentType = res.headers.get("content-type");
-      console.log("[OpenAI] response content-type: ", contentType);
       if (contentType?.startsWith("text/plain")) {
         responseText = await res.clone().text();
         return finish();
       }
 
-      if (!res.ok || !res.headers.get("content-type")?.startsWith(EventStreamContentType)
-        || res.status !== 200) {
+      if (!res.ok || res.status !== 200 ||
+        !res.headers.get("content-type")?.startsWith(EventStreamContentType)
+      ) {
         const responseTexts = [responseText];
         let extraInfo = await res.clone().text();
         try {
@@ -78,6 +81,7 @@ function processStream(
       if (message.data === "[DONE]" || finished) {
         return finish();
       }
+
       const text = message.data;
       try {
         const json = JSON.parse(text) as {
@@ -87,6 +91,7 @@ function processStream(
             };
           }>;
         };
+
         const delta = json.choices?.at(0)?.delta?.content;
         if (delta) {
           remainText += delta;
@@ -122,7 +127,6 @@ export class OpenAIProvider implements ClientProvider {
       frequency_penalty: options.config.frequency_penalty,
       top_p: options.config.top_p,
     };
-    console.log("[Request] openai payload: ", requestPayload);
 
     const shouldStream = !!options.config.stream;
     const controller = new AbortController();
@@ -141,9 +145,10 @@ export class OpenAIProvider implements ClientProvider {
       }, 60000);
 
       if (shouldStream) {
-        processStream(chatPath, chatPayload, options, controller);
+        processStream(chatPath, chatPayload, options, controller, requestTimeoutId);
       } else {
         const res = await fetch(chatPath, chatPayload);
+        clearTimeout(requestTimeoutId);
         const resJson = await res.json();
         const message = resJson.choices?.at(0)?.message?.content ?? "";
         options.onFinish(message);
@@ -152,5 +157,29 @@ export class OpenAIProvider implements ClientProvider {
       console.log("[Request] failed to make a chat request", e);
       options.onError?.(e as Error);
     }
+  }
+
+  async models() {
+    const res = await fetch(
+      "/api/openai/models",
+      {
+        method: "GET",
+      },
+    );
+    const resJson = (await res.json()) as OpenAIChatModel;
+    const chatModels = resJson.data?.filter((m) => m.id.startsWith("gpt-"));
+    if (!chatModels) {
+      return [];
+    }
+
+    return chatModels.map((m) => ({
+      name: m.id,
+      available: true,
+      provider: {
+        id: "openai",
+        providerName: "OpenAI",
+        providerType: "openai",
+      },
+    }));
   }
 };

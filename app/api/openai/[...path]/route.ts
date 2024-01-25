@@ -5,6 +5,8 @@ import { getServerSideConfig } from "@/lib/configs/server";
 
 const MAPPING_ROUTES: Record<string, string> = {
   "chat": "v1/chat/completions",
+  "models": "v1/models",
+  "usage": "v1/usage",
 };
 const ALLOWD_PATHS = new Set(Object.keys(MAPPING_ROUTES));
 
@@ -12,6 +14,14 @@ async function handle(
   req: NextRequest,
   { params }: { params: { path: string[] } },
 ) {
+  let query = "";
+  const searchParams = req.nextUrl.searchParams;
+  searchParams.delete("path");
+  if (searchParams.size > 0) {
+    query = `?${searchParams.toString()}`;
+  }
+
+  console.log("[OpenAI Route] request path: ", params.path.join("/"), query);
   if (req.method === "OPTIONS") {
     return NextResponse.json({ bpdy: "OK" }, { status: 200 });
   }
@@ -33,8 +43,7 @@ async function handle(
   try {
     const { openaiAPIKey } = getServerSideConfig();
     const openaiAPIURL = "https://api.openai.com";
-    const path = `${openaiAPIURL}/${MAPPING_ROUTES[subpath]}`;
-    console.log(openaiAPIKey, path, subpath);
+    const path = `${openaiAPIURL}/${MAPPING_ROUTES[subpath]}${query}`;
 
     const fetchOptions: RequestInit = {
       headers: {

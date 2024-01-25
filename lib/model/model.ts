@@ -4,6 +4,15 @@ export const KnowledgeCutOffDate: Record<string, string> = {
   "gpt-4-vision-preview": "2023-04",
 };
 
+export interface OpenAIChatModel {
+  object: string;
+  data: Array<{
+    id: string;
+    object: string;
+    root: string;
+  }>;
+};
+
 export const ChatModels = [
   {
     name: "gpt-4",

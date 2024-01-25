@@ -8,6 +8,7 @@ import RehypeKatex from "rehype-katex";
 import RemarkGfm from "remark-gfm";
 import RehypeHighlight from "rehype-highlight";
 
+import "katex/dist/katex.min.css";
 import LoadingIcon from "@/public/icons/three-dots.svg";
 import { copyToClipboard } from "@/lib/utils/clipboard";
 import { showImageModal } from "@/app/components/modal";

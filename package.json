@@ -38,8 +38,6 @@
     "remark-breaks": "3.0.2",
     "remark-gfm": "3.0.1",
     "remark-math": "5.1.1",
-    "sequelize": "6.35.2",
-    "sqlite3": "5.1.7",
     "use-debounce": "10.0.0",
     "zustand": "4.4.7"
   },

@@ -291,12 +291,6 @@ export const useChatStore = createPersistStore(
         const lastSummarizeIndex = session.messages.length;
         const compressMessageLengthThreshold = 
           modelConfig?.compressMessageLengthThreshold ?? 1000;
-        console.log(
-          "[Chat History] ",
-          toBeSummarizedMessages,
-          historyMessageCount,
-          compressMessageLengthThreshold,
-        );
         if (historyMessageCount > compressMessageLengthThreshold &&
           modelConfig?.sendMemory
         ) {
@@ -343,7 +337,6 @@ export const useChatStore = createPersistStore(
         const session = get().currentSession();
         const modelConfig = session.modelConfig;
         const userContent = fillTemplateWith(content, modelConfig);
-        console.log("[User Input] after template: ", userContent);
 
         const userMessage: ChatMessage = createMessage({
           role: "user",
@@ -433,7 +426,8 @@ export const useChatStore = createPersistStore(
         const messages = session.messages.slice();
         const totalMessageCount = messages.length;
         const contextPrompts = session.context.slice();
-        const shouldInjectSystemPrompts = modelConfig.enableInjectSystemPrompts &&
+        const shouldInjectSystemPrompts =
+          modelConfig.enableInjectSystemPrompts &&
           modelConfig.model.startsWith("gpt-");
 
         var systemPrompts: ChatMessage[] = [];
@@ -447,9 +441,6 @@ export const useChatStore = createPersistStore(
               }),
             }),
           ] : [];
-        if (shouldInjectSystemPrompts) {
-          console.log("[System Prompt] ", systemPrompts.at(0)?.content ?? "empty");
-        }
 
         const shouldSendLongTermMemory = modelConfig.sendMemory &&
           session.memoryPrompt &&
