@@ -9,7 +9,8 @@ import DownArrowIcon from "@/public/icons/down.svg";
 
 import RenameIcon from "@/public/icons/rename.svg";
 import { DefaultTopic, useChatStore } from "@/lib/redux/chat";
-import { ChatModelType, ChatModels } from "@/lib/model/model";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { updateModelsAsync } from "@/lib/redux/gptmodels";
 
 function useScrollToBottom() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -48,8 +49,14 @@ function ChatBox() {
   const { scrollRef, setAutoScroll, scrollDomToBottom } = useScrollToBottom();
 
   const currentModel = session.modelConfig.model;
-  const avaiableModels = ChatModels
-    .filter((model) => model.available);
+  const gptModels = useAppSelector(state => state.gptModels);
+  const dispatch = useAppDispatch();
+  if (gptModels.lastUpdated < Date.now() - 1000 * 60 * 60 * 24 && !gptModels.updating) {
+    console.log("Fetching models, last updated: ", gptModels.lastUpdated,
+                "and now: ", Date.now());
+    dispatch(updateModelsAsync());
+  }
+  const avaiableModels = gptModels.models.filter((m) => m.available);
 
   const handleModelSelectorOutsideClick = (e: MouseEvent) => {
     if (modelSelectorRef.current &&
@@ -132,7 +139,7 @@ function ChatBox() {
                   onSelection={(s) => {
                     if (s.length === 0) return;
                     chatStore.updateCurrentSession((session) => {
-                      session.modelConfig.model = s[0] as ChatModelType;
+                      session.modelConfig.model = s[0];
                     });
                     // showToast(s[0]);
                   }}
@@ -153,6 +160,7 @@ function ChatBox() {
       </div>
 
       <ChatMessageList
+        key={session.id}
         session={session}
         scrollRef={scrollRef}
         setHitBottom={setHitBottom}

@@ -120,6 +120,7 @@ export function ChatMessageList(props: {
       {props.session.messages.map((message, index) => {
         return (
           <ChatMessageItem
+            key={message.id}
             message={message}
             session={props.session}
             index={index}

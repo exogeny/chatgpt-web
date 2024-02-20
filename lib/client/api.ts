@@ -19,6 +19,7 @@ export interface ChatOptions {
 
 export interface ClientProvider {
   chat(options: ChatOptions): Promise<void>;
+  models(): Promise<{ name: string; }[]>;
 };
 
 export class ClientAPI {
@@ -38,5 +39,9 @@ export class ClientAPI {
 
   chat(options: ChatOptions): Promise<void> {
     return this.provider.chat(options);
+  }
+
+  models() {
+    return this.provider.models();
   }
 };

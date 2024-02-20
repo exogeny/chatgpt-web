@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 import { createPersistStore } from "./store";
 import { ChatMessage, ChatSession } from "../model/chat";
 import { StoreKey } from "../configs/constant";
-import { ChatModelConfig, ChatModelType, KnowledgeCutOffDate } from "../model/model";
+import { ChatModelConfig, KnowledgeCutOffDate } from "../model/model";
 import { ClientAPI, ModelProvider } from "../client/api";
 import { prettyObject } from "../utils/format";
 import { ChatControllerPool } from "../client/controller";

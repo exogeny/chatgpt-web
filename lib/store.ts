@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux";
 
 import { AuthorizeSlicer } from "./redux/slicer";
+import { gptModelsSlicer } from "./redux/gptmodels";
 
 /**
  * Redux store. contains reducer for Redux Toolkit Query
@@ -9,6 +10,7 @@ import { AuthorizeSlicer } from "./redux/slicer";
 const store = configureStore({
   reducer: {
     [AuthorizeSlicer.reducerPath]: AuthorizeSlicer.reducer,
+    [gptModelsSlicer.reducerPath]: gptModelsSlicer.reducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(AuthorizeSlicer.middleware),
   devTools: process.env.NODE_ENV !== "production",
