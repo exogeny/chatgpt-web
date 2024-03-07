@@ -12,6 +12,7 @@ import DeleteIcon from "@/public/icons/delete.svg";
 
 import { useMobileScreen } from "@/lib/mobile";
 import { useChatStore } from "@/lib/redux/chat";
+import Avatar from "../emoji/avatar";
 
 export function ChatItem(props: {
   onClick?: () => void;
@@ -22,6 +23,7 @@ export function ChatItem(props: {
   selected: boolean;
   id: string;
   index: number;
+  narrow?: boolean;
 }) {
   const draggableRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -46,11 +48,31 @@ export function ChatItem(props: {
           {...provided.dragHandleProps}
           title={`${props.title}\n${props.count} messages`}
         >
-          <div className={styles["chat-item-title"]}>{props.title}</div>
-          <div className={styles["chat-item-info"]}>
-            <div className={styles["chat-item-count"]}>{props.count} messages</div>
-            <div className={styles["chat-item-date"]}>{props.time}</div>
-          </div>
+          {
+            props.narrow ? (
+              <div className={styles["chat-item-narrow"]}>
+                <div className={styles["chat-item-narrow-bar"]}>
+                  <div className={styles["chat-item-narrow-title"]}>{props.title}</div>
+                  <div className={styles["chat-item-narrow-count"]}>
+                    ({props.count})
+                  </div>
+                </div>
+                <div className={styles["chat-item-avatar"] + " no-dark"}>
+                  <Avatar
+                    image="/images/panda_1f43c.png"
+                  />
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className={styles["chat-item-title"]}>{props.title}</div>
+                <div className={styles["chat-item-info"]}>
+                  <div className={styles["chat-item-count"]}>{props.count} messages</div>
+                  <div className={styles["chat-item-date"]}>{props.time}</div>
+                </div>
+              </>
+            )
+          }
 
           <div
             className={styles["chat-item-delete"]}
@@ -68,7 +90,9 @@ export function ChatItem(props: {
   )
 }
 
-export function ChatList() {
+export function ChatList(props: {
+    narrow?: boolean;
+}) {
   const [sessions, selectedIndex, selectSession, moveSession] = useChatStore(
     (state) => [
       state.sessions,
@@ -82,6 +106,19 @@ export function ChatList() {
   const isMobileScreen = useMobileScreen();
 
   const onDragEnd: OnDragEndResponder = (result) => {
+    const { destination, source } = result;
+    if (!destination) {
+      return;
+    }
+
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    moveSession(source.index, destination.index);
   };
 
   return (
@@ -101,13 +138,15 @@ export function ChatList() {
                 key={session.id}
                 id={session.id}
                 index={index}
+                narrow={props.narrow}
                 selected={index === selectedIndex}
                 onClick={() => {
-                  navigate("/");
+                  navigate("/chat");
                   selectSession(index);
                 }}
                 onDelete={async () => {
-                  if (!isMobileScreen) {
+                  if (!props.narrow && !isMobileScreen) {
+                  } else {
                     chatStore.removeSession(index);
                   }
                 }}

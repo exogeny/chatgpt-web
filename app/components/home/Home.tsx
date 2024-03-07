@@ -5,15 +5,16 @@ import {
   HashRouter,
   Route,
   Routes,
+  useLocation,
 } from "react-router-dom";
 import dynamic from "next/dynamic";
 
-import styles from "@/app/styles/home.module.scss";
+import styles from "./home.module.scss";
 import BotIcon from "@/public/icons/bot.svg";
 import LoadingIcon from "@/public/icons/three-dots.svg";
 
-import { ErrorBoundary } from "./Error";
-import { SideBar } from "./sidebar/sidebar";
+import { SideBar } from "@/app/components/sidebar/sidebar";
+import { ErrorBoundary } from "@/app/components/error/Error";
 
 
 export function Loading(props: { noLogo?: boolean }) {
@@ -25,19 +26,24 @@ export function Loading(props: { noLogo?: boolean }) {
   );
 }
 
-const Chat = dynamic(async () => (await import("./chat/chat")).Chat, {
+const Chat = dynamic(async () => (await import("@/app/components/chat/chat")).Chat, {
   loading: () => <Loading noLogo />,
 });
 
 function Screen() {
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+  console.log("isHome: ", isHome, "location: ", location.pathname);
+
   return (
     <div className={styles.container}>
-      <SideBar className={styles["sidebar-show"]} />
+      <SideBar isHome={isHome} />
 
       <div className={styles["window-content"]}>
         <Routes>
           <Route path="/" element={<Chat />} />
           <Route path="/new" element={<Chat />} />
+          <Route path="/chat" element={<Chat />} />
         </Routes>
       </div>
     </div>

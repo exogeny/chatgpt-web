@@ -5,6 +5,7 @@ import { useChatStore } from "@/lib/redux/chat";
 
 import styles from "./action.module.scss";
 import ScollDownIcon from "@/public/icons/down.svg";
+import HomeIcon from "@/public/icons/home.svg";
 import PromptIcon from "@/public/icons/prompt.svg";
 
 function ChatAction(props: {
@@ -72,6 +73,10 @@ export function ChatActionList(props: {
         onClick={props.scrollToBottom}
         icon={<ScollDownIcon />}
         disabled={props.hitBottom}
+      />
+      <ChatAction
+        onClick={() => navigate("/")}
+        icon={<HomeIcon />}
       />
       <ChatAction
         onClick={props.showPromptHints}

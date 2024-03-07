@@ -1,8 +1,4 @@
 @mixin container {
-  --window-width: 100vw;
-  --window-height: var(--full-height);
-  --window-content-width: calc(100% - var(--sidebar-width));
-
   background-color: var(--white);
   border: var(--border-in-light);
   border-radius: 20px;
@@ -17,7 +13,7 @@
   width: var(--window-width);
   height: var(--window-height);
 
-  max-width: 100vw;
+  max-width: var(--window-width);
   max-height: var(--full-height);
 
   border-radius: 0;
@@ -45,7 +41,16 @@
 }
 
 @media only screen and (max-width: 600px) {
-  .sidebar-show {
-    left: 0;
+  .container {
+    min-height: unset;
+    min-width: unset;
+    max-height: unset;
+    min-width: unset;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .mobile {
+    display: block;
   }
 }

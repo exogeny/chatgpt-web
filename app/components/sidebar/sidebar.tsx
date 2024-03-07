@@ -8,12 +8,15 @@ import { isIOS, useMobileScreen } from "@/lib/mobile";
 import { Button } from "../button/button";
 import { useChatStore } from "@/lib/redux/chat";
 import { getClientConfig } from "@/lib/configs/client";
+import AddIcon from "@/public/icons/add.svg";
 
 const ChatList = dynamic(async () => (await import("../chat/list")).ChatList, {
   loading: () => null,
 });
 
-export function SideBar(props: { className?: string }) {
+export function SideBar(props: {
+  isHome?: boolean;
+}) {
   const navigate = useNavigate();
   const isMobileScreen = useMobileScreen();
   const isIOSMobile = useMemo(
@@ -25,7 +28,7 @@ export function SideBar(props: { className?: string }) {
 
   return (
     <div
-      className={`${styles.sidebar} ${props.className}`}
+      className={`${styles.sidebar} ${props.isHome && styles["sidebar-show"]} ${isMobileScreen && styles["narrow-sidebar"]}`}
       style={{
         // #3016 disable transition on ios mobile screen
         transition: isMobileScreen && isIOSMobile ? "none" : undefined,
@@ -56,12 +59,13 @@ export function SideBar(props: { className?: string }) {
           }
         }}
       >
-        <ChatList />
+        <ChatList narrow={isMobileScreen} />
       </div>
 
       <div className={styles["sidebar-tail"]}>
         <Button
-          text="New Chat"
+          icon={<AddIcon />}
+          text={isMobileScreen ? undefined : "New Chat"}
           onClick={() => {
             chatStore.createSession();
             navigate("/new");

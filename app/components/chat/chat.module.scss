@@ -40,3 +40,9 @@
   min-width: 180px;
   justify-content: left;
 }
+
+@media only screen and (max-width: 600px) {
+  .chat-box-title {
+    text-align: center;
+  }
+}

@@ -1,4 +1,4 @@
-import { Home } from "./components/Home";
+import { Home } from "@/app/components/home/Home";
 
 const Index = () => {
   return (
