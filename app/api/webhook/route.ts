@@ -35,7 +35,11 @@ function resolveReleaseEvent(data: any) {
         .then((assets) => {
           const asset = assets
             .find((asset: any) => asset.name === "ChatGPT-Release.zip");
+          console.log("[Webhook] Found asset", asset);
           if (asset) {
+            console.log(
+                "[Webhook] Fetching asset from",
+                asset.browser_download_url);
             return fetch(asset.browser_download_url);
           } else {
             throw new Error("[Webhook] Failed to find ChatGPT-Release.zip asset");

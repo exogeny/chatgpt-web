@@ -8,8 +8,10 @@ export const getBuildConfig = () => {
   const buildMode = process.env.BUILD_MODE ?? "standalone";
 
   const commitInfo = (() => {
+    let version = "unknown";
+
     try {
-      const version = "v" + require("@/package.json").version;
+      version = "v" + require("@/package.json").version;
       const childProcess = require("child_process");
       const commitDate: string = childProcess
         .execSync('git log -1 --format="%at000" --date=unix')
@@ -22,9 +24,8 @@ export const getBuildConfig = () => {
 
       return { version, commitDate, commitHash };
     } catch (e) {
-      console.error("[Build Config] No git or not from git repo.");
       return {
-        version: "unknown",
+        version: version,
         commitDate: "unknown",
         commitHash: "unknown",
       };
