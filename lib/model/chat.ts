@@ -1,4 +1,4 @@
-import { ChatModelConfig, ChatModelType } from "./model";
+import { ChatModelConfig } from "./model";
 
 export const MessageRoles = ["system", "user", "assistant"] as const;
 export type MessageRole = (typeof MessageRoles)[number];
@@ -13,7 +13,7 @@ export type ChatMessage = RequestMessage & {
   streaming?: boolean;
   isError?: boolean;
   id: string;
-  model?: ChatModelType;
+  model?: any;
 };
 
 export interface ChatStatistcs {

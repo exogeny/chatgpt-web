@@ -1,11 +1,9 @@
-import { ChatModelType } from "@/lib/model/model";
-
 import BotIcon from "@/public/icons/bot.svg";
 import BlackBotIcon from "@/public/icons/black-bot.svg";
 import Emoji from "./emoji";
 
 export default function Avatar(props: {
-  model?: ChatModelType;
+  model?: any;
   avatar?: string;
   image?: string;
 }) {
