@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-web",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "ChatGPT Web App",
   "scripts": {
     "dev": "next dev",
